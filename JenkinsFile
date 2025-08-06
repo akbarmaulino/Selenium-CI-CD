@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build Stage') {
+            steps {
+                echo 'Cloning Selenium-CI-CD...'
+                git branch: 'main', url: 'https://github.com/akbarmaulino/Selenium-CI-CD'
+                
+                dir('Selenium-CI-CD') {
+                    echo 'Compiling HelloWord.java...'
+                    sh 'javac HelloWord.java'
+                }
+            }
+        }
+
+        stage('Test Stage') {
+            steps {
+                echo 'Cloning Selenium-AfterOffice...'
+                sh 'git clone -b main https://github.com/akbarmaulino/Selenium-AfterOffice'
+
+                dir('Selenium-AfterOffice') {
+                    echo 'Installing dependencies with Maven (skip test)...'
+                    sh 'mvn install -DskipTests'
+
+                    echo 'Running tests using TestNG...'
+                    sh 'mvn test -Dsurefire.suiteXmlFiles=src/test/resources/pageFactory/runner_cucumber.xml'
+                }
+            }
+        }
+
+        stage('Deployment Stage') {
+            steps {
+                dir('Selenium-CI-CD') {
+                    echo 'Running HelloWord.java...'
+                    sh 'java HelloWord'
+                }
+            }
+        }
+    }
+}
