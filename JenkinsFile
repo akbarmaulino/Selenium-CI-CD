@@ -13,8 +13,14 @@ pipeline {
 
         stage('Test Stage') {
             steps {
-                echo 'Cloning Selenium-AfterOffice...'
-                bat 'git clone -b main https://github.com/akbarmaulino/Selenium-AfterOffice'
+                echo 'Cloning or pulling Selenium-AfterOffice...'
+                bat '''
+                if exist Selenium-AfterOffice (
+                    cd Selenium-AfterOffice && git fetch origin && git reset --hard origin/main
+                ) else (
+                    git clone -b main https://github.com/akbarmaulino/Selenium-AfterOffice
+                )
+                '''
 
                 dir('Selenium-AfterOffice') {
                     echo 'Installing dependencies with Maven (skip test)...'
