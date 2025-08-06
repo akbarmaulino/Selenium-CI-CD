@@ -1,42 +1,66 @@
 pipeline {
     agent any
-
     stages {
-        stage('Build Stage') {
+        stage('Build') {
             steps {
-                dir('.') {
-                    echo 'Compiling HelloWord.java...'
-                    bat 'javac HelloWord.java'
+                script {
+                    // Step 1.1 & 1.2
+                    def repo1 = 'Selenium-CI-CD'
+                    if (fileExists(repo1)) {
+                        echo "Folder ${repo1} already exists. Pulling latest changes..."
+                        dir(repo1) {
+                            bat 'git pull'
+                        }
+                    } else {
+                        echo "Cloning ${repo1}..."
+                        bat "git clone https://github.com/akbarmaulino/Selenium-CI-CD"
+                    }
+
+                    // Step 1.3
+                    dir(repo1) {
+                        echo "Compiling HelloWord.java"
+                        bat 'javac HelloWord.java'
+                    }
                 }
             }
         }
 
-        stage('Test Stage') {
+        stage('Test') {
             steps {
-                echo 'Cloning or pulling Selenium-AfterOffice...'
-                bat '''
-                if exist Selenium-AfterOffice (
-                    cd Selenium-AfterOffice && git fetch origin && git reset --hard origin/main
-                ) else (
-                    git clone -b main https://github.com/akbarmaulino/Selenium-AfterOffice
-                )
-                '''
+                script {
+                    // Step 2.1 & 2.2
+                    def repo2 = 'Selenium-AfterOffice'
+                    if (fileExists(repo2)) {
+                        echo "Folder ${repo2} already exists. Pulling latest changes..."
+                        dir(repo2) {
+                            bat 'git pull'
+                        }
+                    } else {
+                        echo "Cloning ${repo2}..."
+                        bat "git clone https://github.com/akbarmaulino/Selenium-AfterOffice"
+                    }
 
-                dir('Selenium-AfterOffice') {
-                    echo 'Installing dependencies with Maven (skip test)...'
-                    bat 'mvn install -DskipTests'
-
-                    echo 'Running tests using TestNG...'
-                    bat 'mvn test -Dsurefire.suiteXmlFiles=src/test/resources/pageFactory/runner_cucumber.xml'
+                    // Step 2.3 & 2.4
+                    dir(repo2) {
+                        bat 'mvn install -DskipTests'
+                        bat 'mvn test "-Dtestng.xml=src/test/resources/pageFactory/runner_cucumber.xml" -Denv=production'
+                    }
                 }
             }
         }
 
-        stage('Deployment Stage') {
+        stage('Deployment') {
             steps {
-                dir('.') {
-                    echo 'Running HelloWord.java...'
-                    bat 'java HelloWord'
+                script {
+                    def deployDir = "Selenium-CI-CD\\deployment"
+                    if (fileExists(deployDir)) {
+                        dir(deployDir) {
+                            echo "Running HelloWord class..."
+                            bat 'java HelloWord'
+                        }
+                    } else {
+                        error "Deployment folder not found: ${deployDir}"
+                    }
                 }
             }
         }
