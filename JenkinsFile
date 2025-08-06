@@ -4,10 +4,7 @@ pipeline {
     stages {
         stage('Build Stage') {
             steps {
-                echo 'Cloning Selenium-CI-CD...'
-                git branch: 'main', url: 'https://github.com/akbarmaulino/Selenium-CI-CD'
-
-                dir('Selenium-CI-CD') {
+                dir('.') {
                     echo 'Compiling HelloWord.java...'
                     bat 'javac HelloWord.java'
                 }
@@ -31,7 +28,7 @@ pipeline {
 
         stage('Deployment Stage') {
             steps {
-                dir('Selenium-CI-CD') {
+                dir('.') {
                     echo 'Running HelloWord.java...'
                     bat 'java HelloWord'
                 }
