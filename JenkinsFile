@@ -1,26 +1,33 @@
 pipeline {
     agent any
+
+    environment {
+        REPO_BUILD = 'https://github.com/akbarmaulino/Selenium-CI-CD'
+        REPO_TEST = 'https://github.com/akbarmaulino/Selenium-AfterOffice'
+        FOLDER_BUILD = 'Selenium-CI-CD'
+        FOLDER_TEST = 'Selenium-AfterOffice'
+    }
+
     stages {
         stage('Build') {
             steps {
                 script {
-                    // Step 1.1 & 1.2
-                    def repo1 = 'Selenium-CI-CD'
-                    if (fileExists(repo1)) {
-                        echo "Folder ${repo1} already exists. Pulling latest changes..."
-                        dir(repo1) {
-                            bat 'git pull'
+                    if (fileExists(FOLDER_BUILD)) {
+                        echo "Folder ${FOLDER_BUILD} exists. Pulling latest changes..."
+                        dir(FOLDER_BUILD) {
+                            bat 'git pull origin main'
                         }
                     } else {
-                        echo "Cloning ${repo1}..."
-                        bat "git clone https://github.com/akbarmaulino/Selenium-CI-CD"
+                        echo "Cloning ${REPO_BUILD}..."
+                        bat "git clone ${REPO_BUILD}"
+                        dir(FOLDER_BUILD) {
+                            bat 'git checkout main'
+                        }
                     }
-
-                    // Step 1.3
-                    dir(repo1) {
-                        echo "Compiling HelloWord.java"
-                        bat 'javac HelloWord.java'
-                    }
+                }
+                dir(FOLDER_BUILD) {
+                    echo "Compiling HelloWord.java"
+                    bat 'javac HelloWord.java'
                 }
             }
         }
@@ -28,39 +35,37 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    // Step 2.1 & 2.2
-                    def repo2 = 'Selenium-AfterOffice'
-                    if (fileExists(repo2)) {
-                        echo "Folder ${repo2} already exists. Pulling latest changes..."
-                        dir(repo2) {
-                            bat 'git pull'
+                    if (fileExists(FOLDER_TEST)) {
+                        echo "Folder ${FOLDER_TEST} exists. Pulling latest changes..."
+                        dir(FOLDER_TEST) {
+                            bat 'git pull origin main'
                         }
                     } else {
-                        echo "Cloning ${repo2}..."
-                        bat "git clone https://github.com/akbarmaulino/Selenium-AfterOffice"
+                        echo "Cloning ${REPO_TEST}..."
+                        bat "git clone ${REPO_TEST}"
+                        dir(FOLDER_TEST) {
+                            bat 'git checkout main'
+                        }
                     }
+                }
+                dir(FOLDER_TEST) {
+                    echo "Running mvn install -DskipTests"
+                    bat 'mvn install -DskipTests'
 
-                    // Step 2.3 & 2.4
-                    dir(repo2) {
-                        bat 'mvn install -DskipTests'
-                        bat 'mvn test "-Dtestng.xml=src/test/resources/pageFactory/runner_cucumber.xml" -Denv=production'
-                    }
+                    echo "Running mvn test with runner_cucumber.xml"
+                    bat 'mvn test -Dtestng.xml=src/test/resources/pageFactory/runner_cucumber.xml'
+
+                    echo "Running mvn test with production env"
+                    bat 'mvn test -Dtestng.xml=src/test/resources/pageFactory/runner_cucumber.xml -Denv=production'
                 }
             }
         }
 
         stage('Deployment') {
             steps {
-                script {
-                    def deployDir = "Selenium-CI-CD\\deployment"
-                    if (fileExists(deployDir)) {
-                        dir(deployDir) {
-                            echo "Running HelloWord class..."
-                            bat 'java HelloWord'
-                        }
-                    } else {
-                        error "Deployment folder not found: ${deployDir}"
-                    }
+                dir(FOLDER_BUILD) {
+                    echo "Running HelloWord class"
+                    bat 'java HelloWord'
                 }
             }
         }
