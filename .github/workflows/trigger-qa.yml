@@ -32,3 +32,4 @@ jobs:
           -H "Authorization: Bearer ${{ secrets.QA_PAT }}" \
           -d '{"event_type":"run-qa"}'
       shell: bash
+
