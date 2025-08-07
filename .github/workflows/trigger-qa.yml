@@ -1,0 +1,27 @@
+name: Build and Deploy (Dev Repo)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+
+    steps:
+    - name: ✅ Checkout source
+      uses: actions/checkout@v4
+
+    - name: 🔹 Compile Java
+      run: |
+        dir
+        javac HelloWord.java
+      shell: cmd
+
+    - name: 🚀 Run HelloWord (Deploy step)
+      run: |
+        dir
+        java HelloWord
+      shell: cmd
