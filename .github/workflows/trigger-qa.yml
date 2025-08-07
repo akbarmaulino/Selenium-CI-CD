@@ -1,4 +1,4 @@
-name: Build and Deploy (Dev Repo)
+name: Build and Trigger QA
 
 on:
   push:
@@ -7,21 +7,28 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: windows-latest
 
     steps:
-    - name: ✅ Checkout source
+    - name: ✅ Checkout Dev Repo
       uses: actions/checkout@v4
 
-    - name: 🔹 Compile Java
+    - name: 🔹 Compile HelloWord.java
       run: |
         dir
         javac HelloWord.java
       shell: cmd
 
-    - name: 🚀 Run HelloWord (Deploy step)
+    - name: 🚀 Run HelloWord
       run: |
-        dir
         java HelloWord
       shell: cmd
+
+    - name: 🔁 Trigger QA Workflow via repository_dispatch
+      run: |
+        curl -X POST https://api.github.com/repos/akbarmaulino/Selenium-AfterOffice/dispatches \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.PAT_QA }}" \
+          -d '{"event_type":"run-qa"}'
+      shell: bash
