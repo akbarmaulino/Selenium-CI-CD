@@ -26,6 +26,7 @@ pipeline {
                     }
                 }
                 dir(FOLDER_BUILD) {
+                    bat 'dir' // debug lihat isi folder
                     echo "Compiling HelloWord.java"
                     bat 'javac HelloWord.java'
                 }
@@ -49,13 +50,14 @@ pipeline {
                     }
                 }
                 dir(FOLDER_TEST) {
+                    bat 'dir' // debug lihat isi folder
                     echo "Running mvn install -DskipTests"
                     bat 'mvn install -DskipTests'
 
-                    echo "Running mvn test with runner_cucumber.xml"
+                    echo "Running mvn test (default)"
                     bat 'mvn test -Dtestng.xml=src/test/resources/pageFactory/runner_cucumber.xml'
 
-                    echo "Running mvn test with production env"
+                    echo "Running mvn test (production)"
                     bat 'mvn test -Dtestng.xml=src/test/resources/pageFactory/runner_cucumber.xml -Denv=production'
                 }
             }
