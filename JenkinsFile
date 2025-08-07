@@ -10,12 +10,12 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    echo "Listing current directory for debug"
+                    echo "📁 Listing current directory:"
                     bat 'dir'
-                }
 
-                echo "Compiling HelloWord.java (should be in root)"
-                bat 'javac HelloWord.java'
+                    echo "🛠️ Compiling HelloWord.java"
+                    bat 'javac HelloWord.java'
+                }
             }
         }
 
@@ -23,36 +23,42 @@ pipeline {
             steps {
                 script {
                     if (fileExists(FOLDER_TEST)) {
-                        echo "Folder ${FOLDER_TEST} exists. Pulling latest changes..."
+                        echo "📂 Folder ${FOLDER_TEST} exists. Pulling latest changes..."
                         dir(FOLDER_TEST) {
+                            bat 'git checkout main'
                             bat 'git pull origin main'
                         }
                     } else {
-                        echo "Cloning ${REPO_TEST}..."
+                        echo "⬇️ Cloning test repo from ${REPO_TEST}..."
                         bat "git clone ${REPO_TEST}"
                         dir(FOLDER_TEST) {
                             bat 'git checkout main'
                         }
                     }
-                }
-                dir(FOLDER_TEST) {
-                    bat 'dir' // debug lihat isi folder
-                    echo "Running mvn install -DskipTests"
-                    bat 'mvn install -DskipTests'
 
-                    echo "Running mvn test (default)"
-                    bat 'mvn test -Dtestng.xml=src/test/resources/pageFactory/runner_cucumber.xml'
+                    dir(FOLDER_TEST) {
+                        echo "📁 Checking contents of ${FOLDER_TEST}"
+                        bat 'dir'
 
-                    echo "Running mvn test (production)"
-                    bat 'mvn test -Dtestng.xml=src/test/resources/pageFactory/runner_cucumber.xml -Denv=production'
+                        echo "⚙️ Running mvn install -DskipTests"
+                        bat 'mvn install -DskipTests'
+
+                        echo "🧪 Running mvn test (default env)"
+                        bat 'mvn test -Dsurefire.suiteXmlFiles=src/test/resources/pageFactory/runner_cucumber.xml'
+
+                        echo "🧪 Running mvn test (production env)"
+                        bat 'mvn test -Dsurefire.suiteXmlFiles=src/test/resources/pageFactory/runner_cucumber.xml -Denv=production'
+                    }
                 }
             }
         }
 
         stage('Deployment') {
             steps {
-                echo "Running HelloWord class"
-                bat 'java HelloWord'
+                script {
+                    echo "🚀 Running HelloWord class"
+                    bat 'java HelloWord'
+                }
             }
         }
     }
