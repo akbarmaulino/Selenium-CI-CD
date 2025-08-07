@@ -2,9 +2,7 @@ pipeline {
     agent any
 
     environment {
-        REPO_BUILD = 'https://github.com/akbarmaulino/Selenium-CI-CD'
         REPO_TEST = 'https://github.com/akbarmaulino/Selenium-AfterOffice'
-        FOLDER_BUILD = 'Selenium-CI-CD'
         FOLDER_TEST = 'Selenium-AfterOffice'
     }
 
@@ -12,24 +10,12 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    if (fileExists(FOLDER_BUILD)) {
-                        echo "Folder ${FOLDER_BUILD} exists. Pulling latest changes..."
-                        dir(FOLDER_BUILD) {
-                            bat 'git pull origin main'
-                        }
-                    } else {
-                        echo "Cloning ${REPO_BUILD}..."
-                        bat "git clone ${REPO_BUILD}"
-                        dir(FOLDER_BUILD) {
-                            bat 'git checkout main'
-                        }
-                    }
+                    echo "Listing current directory for debug"
+                    bat 'dir'
                 }
-                dir(FOLDER_BUILD) {
-                    bat 'dir' // debug lihat isi folder
-                    echo "Compiling HelloWord.java"
-                    bat 'javac HelloWord.java'
-                }
+
+                echo "Compiling HelloWord.java (should be in root)"
+                bat 'javac HelloWord.java'
             }
         }
 
@@ -65,10 +51,8 @@ pipeline {
 
         stage('Deployment') {
             steps {
-                dir(FOLDER_BUILD) {
-                    echo "Running HelloWord class"
-                    bat 'java HelloWord'
-                }
+                echo "Running HelloWord class"
+                bat 'java HelloWord'
             }
         }
     }
