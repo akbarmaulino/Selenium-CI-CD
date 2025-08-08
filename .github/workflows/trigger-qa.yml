@@ -27,7 +27,7 @@ jobs:
 
     - name: 🔁 Trigger QA Workflow via repository_dispatch
       run: |
-        curl -X POST https://api.github.com/repos/akbarmaulino/Selenium-AfterOffice/dispatches \
+        curl -X POST https://github.com/akbarmaulino/Selenium-MineProject/dispatches \
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ secrets.QA_PAT }}" \
           -d '{"event_type":"run-qa"}'
