@@ -4,7 +4,7 @@ public class HelloWord {
         System.out.println("Welcome to Java programming.");
         System.out.println("This is a simple Java application.");
         System.out.println("Let's learn and have fun with Java!");
-        System.out.println("Goodbye, World!4");
+        System.out.println("Goodbye, World!5");
     }
     
 }
